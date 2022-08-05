@@ -14,8 +14,6 @@ blue = (0, 0, 255)
 dis = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Snake game by Mankaran')
 
-game_over = False
-
 clock = pygame.time.Clock()
 
 snake_block = 10
@@ -24,13 +22,17 @@ snake_speed = 15
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
 
+def score(score):
+	value = score_font.render("Your Score: " + str(score), True, yellow)
+	dis.blit(value, [0, 0])
+
 def our_snake(snake_block, snake_list):
 	for x in snake_list:
 		pygame.draw.rect(dis, black, [x[0], x[1], snake_block, snake_block])
 
 def message(msg, color):
 	mesg = font_style.render(msg, True, color)
-	dis.blit(mesg, [800/3, 600/3])
+	dis.blit(mesg, [800/6, 600/3])
 
 def gameLoop():
 	game_over = False
@@ -46,7 +48,9 @@ def gameLoop():
 	length_of_snake = 1
 
 	foodx = round(random.randrange(0, 800 - snake_block) / 10.0) * 10.0
-	foody = round(random.randrange(0, 800 - snake_block) / 10.0) * 10.0
+	foody = round(random.randrange(0, 600 - snake_block) / 10.0) * 10.0
+
+	print('initial: ' , foodx , foody)
 
 	while not game_over:
 
@@ -54,11 +58,14 @@ def gameLoop():
 		while game_close == True:
 			dis.fill(blue)
 			message("You Lost! Press Q-Quit or C-Play Again", red)
-
+			score(length_of_snake - 1)
 			pygame.display.update()
 
 			#constantly check for any key events, specifically q or c
 			for event in pygame.event.get():
+				if event.type == pygame.QUIT: #if the event is the close button is pressed,
+					game_over = True #then set game_over to true and close the application
+					game_close = False
 				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_q:
 						game_over = True
@@ -103,7 +110,7 @@ def gameLoop():
 
 		#if the length of snake_list is greater than the actual snake,
 		if len(snake_list) > length_of_snake:
-			#than delete the first item of snake_list
+			#then delete the first item of snake_list
 			#(helps to ensure that whatever amount of arrays are in snake_list are actual blocks part of the snake)
 			del snake_list[0]
 
@@ -112,14 +119,21 @@ def gameLoop():
 				game_close = True
 
 		our_snake(snake_block, snake_list)
+		score(length_of_snake - 1)
 
 		pygame.display.update()
 
+
 		#if the snake is where a piece of food is, display 'Yummy!'
 		if x1 == foodx and y1 == foody:
-			foodx = round(random.randrange(0, 800 - snake_block))
-			foody = round(random.randrange(0, 600 - snake_block))
+			foodx = round(random.randrange(0, 800 - snake_block) / 10.0) * 10.0
+			foody = round(random.randrange(0, 600 - snake_block) / 10.0) * 10.0
+			print("yummy")
+			print('next: ' , foodx , foody)
 			length_of_snake += 1
+
+		print(x1, y1, '------', foodx, foody)
+
 		clock.tick(snake_speed)
 
 	pygame.quit()
